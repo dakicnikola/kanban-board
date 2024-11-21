@@ -1,5 +1,5 @@
 import './kanban-board.scss'
-import KanbanColumn, {TKanbanColumnProps} from "../KanbanColumn/KanbanColumn.tsx";
+import KanbanColumn, {TKanbanColumnProps} from "./KanbanColumn/KanbanColumn.tsx";
 
 type TKanbanBoardProps = {
   columns: TKanbanColumnProps[];

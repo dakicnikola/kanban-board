@@ -1,6 +1,6 @@
 import './App.css'
 import KanbanBoard from "./components/KanbanBoard/KanbanBoard.tsx";
-import {TKanbanColumnProps} from "./components/KanbanColumn/KanbanColumn.tsx";
+import {TKanbanColumnProps} from "./components/KanbanBoard/KanbanColumn/KanbanColumn.tsx";
 import {v4 as uuid} from 'uuid';
 
 function App() {
