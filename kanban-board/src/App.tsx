@@ -1,33 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import KanbanBoard from "./components/KanbanBoard/KanbanBoard.tsx";
+import {TKanbanColumnProps} from "./components/KanbanColumn/KanbanColumn.tsx";
+import {v4 as uuid} from 'uuid';
 
 function App() {
-  const [count, setCount] = useState(0)
 
+  const kanbanBoardColumns: TKanbanColumnProps[] = [
+    {
+      name: 'To Do',
+      color: 'blue',
+      items: [
+        {label: 'Review request for proposal', id: uuid()},
+        {label: 'Develop BIM model of wind shear impact', id: uuid()}
+      ]
+    },
+    {
+      name: 'In Progress', color: 'red',
+      items: [
+        {label: 'Prepare for client meeting with Addisons', id: uuid()},
+        {label: 'Addison client meeting Thursday 11 a.m.', id: uuid()},
+        {label: 'Write speech on housing trends', id: uuid()},
+        {label: 'Speak to realtors dinner Wed 7 p.m.', id: uuid()}
+      ]
+    },
+    {
+      name: 'Done', color: 'black',
+      items: [
+        {label: 'Write meeting minutes from client meeting', id: uuid()}
+      ]
+    },
+  ]
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <KanbanBoard columns={kanbanBoardColumns} />
     </>
   )
 }
