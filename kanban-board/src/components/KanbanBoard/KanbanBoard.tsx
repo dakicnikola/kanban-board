@@ -1,14 +1,15 @@
 import './kanban-board.scss'
-import KanbanColumn, {TKanbanColumnProps} from "./KanbanColumn/KanbanColumn.tsx";
+import KanbanColumn from "./KanbanColumn/KanbanColumn.tsx";
+import {useKanbanContext} from "../../contexts/KanbanBoardContext.tsx";
 
-type TKanbanBoardProps = {
-  columns: TKanbanColumnProps[];
-}
-const KanbanBoard = (props: TKanbanBoardProps) => {
+const KanbanBoard = () => {
+
+  const {columns} = useKanbanContext()
+
   return (
     <div className="kanban-board">
 
-      {props.columns.map((column, idx) => (
+      {columns.map((column, idx) => (
         <KanbanColumn {...column} key={`${column.name}-${idx}`} />
       ))}
     </div>

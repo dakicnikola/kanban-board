@@ -43,4 +43,4 @@ type TBoardItem = {
 
 export default KanbanColumn;
 
-export type {TKanbanColumnProps}
+export type {TKanbanColumnProps, TBoardItem}
