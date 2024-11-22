@@ -1,6 +1,15 @@
 import "./kanban-column.scss"
+import {useKanbanContext} from "../../../contexts/KanbanBoardContext.tsx";
 
 const KanbanColumn = (props: TKanbanColumnProps) => {
+
+  const {removeCard} = useKanbanContext()
+
+  const deleteTicket = (columnId: string, cardId: string) => () => {
+    removeCard(columnId, cardId)
+  }
+
+
   return (
     <div className={["kanban-column-container", props.color].join(" ")}>
       <div className={"kanban-column-header"}>
@@ -20,6 +29,11 @@ const KanbanColumn = (props: TKanbanColumnProps) => {
         {props.items?.map((item) => (
           <div className={"kanban-column-item"} key={item.id}>
             {item.label}
+            <div className={"kanban-column-item-delete-button"}>
+              <button onClick={deleteTicket(props.id, item.id)}>
+                x
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -33,6 +47,7 @@ const formatNumberOfTasksText = (numberOfTasks: number | undefined) => `(${numbe
 type TKanbanColumnProps = {
   name: string;
   color: 'blue' | 'red' | 'black';
+  id: string;
   items?: TBoardItem[]
 }
 
