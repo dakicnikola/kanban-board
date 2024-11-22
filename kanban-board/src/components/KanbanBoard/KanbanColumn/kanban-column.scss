@@ -101,6 +101,12 @@
       font-weight: 500;
       position: relative;
 
+      p {
+        width: 100%;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+      }
+
       .kanban-column-item-delete-button {
         display: none;
         position: absolute;

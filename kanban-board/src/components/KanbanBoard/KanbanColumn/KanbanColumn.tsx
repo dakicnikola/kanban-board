@@ -3,12 +3,19 @@ import {useKanbanContext} from "../../../contexts/KanbanBoardContext.tsx";
 
 const KanbanColumn = (props: TKanbanColumnProps) => {
 
-  const {removeCard} = useKanbanContext()
+  const {removeCard, openCardContentModal} = useKanbanContext()
 
   const deleteTicket = (columnId: string, cardId: string) => () => {
     removeCard(columnId, cardId)
   }
 
+
+  const onCardDoubleClick = (cardId: string, label: string) => () => {
+    openCardContentModal(props.id, cardId, label)
+  }
+  const onCreateNewCard = () => {
+    openCardContentModal(props.id)
+  }
 
   return (
     <div className={["kanban-column-container", props.color].join(" ")}>
@@ -22,13 +29,15 @@ const KanbanColumn = (props: TKanbanColumnProps) => {
           {formatNumberOfTasksText(props.items?.length)}
         </div>
         <div className={"kanban-column-header-action-button"}>
-          <button>+</button>
+          <button onClick={onCreateNewCard}>+</button>
         </div>
       </div>
       <div className={"kanban-column-body"}>
         {props.items?.map((item) => (
-          <div className={"kanban-column-item"} key={item.id}>
-            {item.label}
+          <div className={"kanban-column-item"} key={item.id}
+               onDoubleClick={onCardDoubleClick(item.id, item.label)}
+          >
+            <p>{item.label}</p>
             <div className={"kanban-column-item-delete-button"}>
               <button onClick={deleteTicket(props.id, item.id)}>
                 x
@@ -48,7 +57,7 @@ type TKanbanColumnProps = {
   name: string;
   color: 'blue' | 'red' | 'black';
   id: string;
-  items?: TBoardItem[]
+  items: TBoardItem[]
 }
 
 type TBoardItem = {

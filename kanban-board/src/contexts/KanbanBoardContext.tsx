@@ -1,19 +1,28 @@
 import {createContext, ReactNode, useContext, useEffect, useMemo, useState} from "react";
 import {TKanbanColumnProps} from "../components/KanbanBoard/KanbanColumn/KanbanColumn.tsx";
 import {v4 as uuid} from "uuid";
+import CardContentDialog from "../components/KanbanBoard/CardContentDialog/CardContentDialog.tsx";
 
 function KanbanContextProvider({children}: IKanbanContextProviderProps) {
 
   const [columns, setColumns] = useState<TKanbanColumnProps[]>(() => {
     const columnsFromLocalStorage = window.localStorage.getItem("columns");
+    //todo add validation for columnsFromLocalStorage
     return columnsFromLocalStorage ? JSON.parse(columnsFromLocalStorage) : kanbanBoardColumns
   })
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const createCard = (columnId: string, cardLabel: string) => {
-    console.log({columnId, cardLabel});
-  }
+  const [editCardState, setEditCardState] = useState<{
+    cardId?: string,
+    label?: string,
+    columnId?: string
+    open: boolean,
+  }>({
+    open: false
+  })
+
+
   const moveCard = (fromColumnId: string, toColumnId: string, cardId: string) => {
     console.log({fromColumnId, toColumnId, cardId});
   }
@@ -21,11 +30,15 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
     setColumns(prevState =>
       prevState.map(col => col.id !== columnId ? col : {
         ...col,
-        items: col.items?.filter(item => item.id !== cardId)
+        items: col.items.filter(item => item.id !== cardId)
       })
     )
-    console.log("Removed item - ", {columnId, cardId});
   }
+
+  const openCardContentModal = (columnId: string, cardId?: string, label?: string) => {
+    setEditCardState({columnId, cardId, label, open: true})
+  }
+
 
   const filteredColumns = useMemo(() => {
     if (!searchTerm.length) {
@@ -35,11 +48,32 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
       return columns.map(
         column => ({
           ...column,
-          items: column.items?.filter(({label}) => label.toLowerCase().includes(loweredSearchTerm),),
+          items: column.items.filter(({label}) => label.toLowerCase().includes(loweredSearchTerm),),
         })
       )
     }
   }, [columns, searchTerm]);
+
+  const closeCreateEditModal = () => {
+    setEditCardState(prevState => ({...prevState, open: false}))
+  }
+
+  const handleCardContentChangeSave = (label: string) => {
+    const isEditing = Boolean(editCardState.cardId)
+    if (isEditing) {
+      setColumns(prevState => prevState.map(
+        col => col.id !== editCardState.columnId ? col :
+          {...col, items: col.items.map(item => item.id === editCardState.cardId ? {...item, label} : item,)}
+      ))
+    } else {
+      const newItem = {label, id: uuid()}
+      setColumns(prevState => prevState.map(
+        col => col.id !== editCardState.columnId ? col :
+          {...col, items: [...col.items, newItem]}
+      ))
+    }
+    setEditCardState(prevState => ({...prevState, open: false}))
+  }
 
 
   useEffect(() => {
@@ -49,9 +83,15 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
 
   return (
     <KanbanContext.Provider
-      value={{createCard, moveCard, removeCard, columns: filteredColumns, searchTerm, setSearchTerm}}
+      value={{openCardContentModal, moveCard, removeCard, columns: filteredColumns, searchTerm, setSearchTerm,}}
     >
       {children}
+      <CardContentDialog visible={editCardState.open}
+                         onClose={closeCreateEditModal}
+                         label={editCardState.label}
+                         title={editCardState.cardId ? "Edit card content" : "Create new card"}
+                         onSave={handleCardContentChangeSave}
+      />
     </KanbanContext.Provider>
   )
 }
@@ -72,12 +112,12 @@ interface IKanbanContextProviderProps {
 }
 
 interface IKanbanContextValue {
-  createCard: (columnId: string, cardLabel: string) => void;
   moveCard: (fromColumnId: string, toColumnId: string, cardId: string) => void;
   removeCard: (columnId: string, cardId: string) => void
   columns: TKanbanColumnProps[],
   searchTerm: string,
   setSearchTerm: (searchTerm: string) => void
+  openCardContentModal: (columnId: string, cardId?: string, label?: string) => void
 }
 
 export type {IKanbanContextValue}
