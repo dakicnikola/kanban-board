@@ -66,6 +66,7 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
       setDraggingCardId(null);
 
     } else {
+
       setColumns((prev) => {
         const activeItems = prev.find(({id}) => id === activeContainerId)!.items;
         const overItems = prev.find(({id}) => id === overContainerId)!.items;

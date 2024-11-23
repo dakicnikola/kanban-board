@@ -26,6 +26,7 @@
     align-items: center;
     line-height: 1.2;
     font-weight: 500;
+    cursor: grab;
 
     p {
       width: 100%;
@@ -33,16 +34,21 @@
       overflow-wrap: anywhere;
     }
 
-    &.blue {
-      background-color: #55AFE1;
+    &.dragging {
+      cursor: grabbing;
+
+      &.blue {
+        background-color: #55AFE1;
+      }
+
+      &.red {
+        background-color: #E66A78;
+      }
+
+      &.black {
+        background-color: #4B5F73;
+      }
     }
 
-    &.red {
-      background-color: #E66A78;
-    }
-
-    &.black {
-      background-color: #4B5F73;
-    }
   }
 }

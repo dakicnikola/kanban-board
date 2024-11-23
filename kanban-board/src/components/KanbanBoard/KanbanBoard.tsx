@@ -3,7 +3,6 @@ import KanbanColumn from "./KanbanColumn/KanbanColumn.tsx";
 import {useKanbanContext} from "../../contexts/KanbanBoardContext.tsx";
 import {ChangeEvent, useState} from "react";
 import {
-  closestCenter,
   DndContext,
   DragOverEvent,
   DragOverlay,
@@ -45,7 +44,6 @@ const KanbanBoard = () => {
       </div>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
       >
@@ -64,7 +62,7 @@ const KanbanBoard = () => {
 
         <DragOverlay>
           {draggingCard.label && draggingCard.color ? (
-            <div className={["kanban-column-item", draggingCard.color].join(" ")}>
+            <div className={["kanban-column-item", "dragging", draggingCard.color].join(" ")}>
               <p>{draggingCard.label}</p>
             </div>
           ) : null}
