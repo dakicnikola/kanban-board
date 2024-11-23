@@ -2,6 +2,7 @@ import {createContext, ReactNode, useContext, useEffect, useMemo, useState} from
 import {TKanbanColumnProps} from "../components/KanbanBoard/KanbanColumn/KanbanColumn.tsx";
 import {v4 as uuid} from "uuid";
 import CardContentDialog from "../components/KanbanBoard/CardContentDialog/CardContentDialog.tsx";
+import {arrayMove} from "@dnd-kit/sortable";
 
 function KanbanContextProvider({children}: IKanbanContextProviderProps) {
 
@@ -10,6 +11,8 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
     //todo add validation for columnsFromLocalStorage
     return columnsFromLocalStorage ? JSON.parse(columnsFromLocalStorage) : kanbanBoardColumns
   })
+
+  const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -23,8 +26,86 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
   })
 
 
-  const moveCard = (fromColumnId: string, toColumnId: string, cardId: string) => {
-    console.log({fromColumnId, toColumnId, cardId});
+  function findContainerId(targetId: string) {
+    return findContainer(targetId)?.id
+  }
+
+  function findContainer(targetId: string) {
+    const column = columns.find(({id}) => targetId === id)
+    if (column) {
+      return column
+    }
+    return columns.find(({items}) => items.map(({id}) => id).includes(targetId))
+  }
+
+  const moveCard = (activeCardId: string, overCardId: string) => {
+    // Find the containers
+    const activeContainerId = findContainerId(activeCardId);
+    const overContainerId = findContainerId(overCardId);
+
+    if (
+      !activeContainerId ||
+      !overContainerId
+    ) {
+      return;
+    }
+    if (activeContainerId === overContainerId) {
+      const activeItems = columns.find(({id}) => id === activeContainerId)!.items;
+      const overItems = columns.find(({id}) => id === overContainerId)!.items;
+
+      const activeIndex = activeItems.findIndex(({id}) => id === activeCardId);
+      const overIndex = overItems.findIndex(({id}) => id === overCardId);
+
+      if (activeIndex !== overIndex) {
+        setColumns((prev) => prev.map(
+            col => col.id === overContainerId ? ({...col, items: arrayMove(col.items, activeIndex, overIndex)}) : col
+          )
+        )
+      }
+
+      setDraggingCardId(null);
+
+    } else {
+      setColumns((prev) => {
+        const activeItems = prev.find(({id}) => id === activeContainerId)!.items;
+        const overItems = prev.find(({id}) => id === overContainerId)!.items;
+
+        // Find the indexes for the items
+        const activeIndex = activeItems.findIndex(({id}) => id === activeCardId);
+        const overIndex = overItems.findIndex(({id}) => id === overCardId);
+
+        let newIndex;
+        if (overCardId === overContainerId) {
+          // We're at the root droppable of a container
+          newIndex = overItems.length + 1;
+        } else {
+          const isBelowLastItem = true
+          // over &&
+          // overIndex === overItems.length - 1 &&
+          // draggingRect.offsetTop > over.rect.offsetTop + over.rect.height;
+
+          const modifier = isBelowLastItem ? 1 : 0;
+
+          newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+        }
+
+        const activeCard = activeItems[activeIndex]!
+
+        return prev.map((prevCol) => {
+          if (activeContainerId === prevCol.id) {
+            return {...prevCol, items: prevCol.items.filter(({id}) => id !== activeCardId)}
+          } else if (overContainerId === prevCol.id) {
+            return {
+              ...prevCol,
+              items: [...prevCol.items.slice(0, newIndex), activeCard, ...prevCol.items.slice(newIndex, prevCol.items.length)]
+            }
+          } else {
+            return prevCol
+          }
+        })
+      });
+    }
+
   }
   const removeCard = (columnId: string, cardId: string) => {
     setColumns(prevState =>
@@ -83,7 +164,15 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
 
   return (
     <KanbanContext.Provider
-      value={{openCardContentModal, moveCard, removeCard, columns: filteredColumns, searchTerm, setSearchTerm,}}
+      value={{
+        openCardContentModal,
+        moveCard,
+        removeCard,
+        columns: filteredColumns,
+        searchTerm,
+        setSearchTerm,
+        draggingCardId
+      }}
     >
       {children}
       <CardContentDialog visible={editCardState.open}
@@ -112,12 +201,13 @@ interface IKanbanContextProviderProps {
 }
 
 interface IKanbanContextValue {
-  moveCard: (fromColumnId: string, toColumnId: string, cardId: string) => void;
+  moveCard: (activeCardId: string, overCardId: string) => void;
   removeCard: (columnId: string, cardId: string) => void
   columns: TKanbanColumnProps[],
   searchTerm: string,
   setSearchTerm: (searchTerm: string) => void
   openCardContentModal: (columnId: string, cardId?: string, label?: string) => void
+  draggingCardId: string | null
 }
 
 export type {IKanbanContextValue}

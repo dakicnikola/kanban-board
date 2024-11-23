@@ -92,20 +92,7 @@
     height: 100%;
 
     .kanban-column-item {
-      width: 100px;
-      min-height: 100px;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      line-height: 1.2;
-      font-weight: 500;
       position: relative;
-
-      p {
-        width: 100%;
-        overflow: hidden;
-        overflow-wrap: anywhere;
-      }
 
       .kanban-column-item-delete-button {
         display: none;
@@ -128,6 +115,12 @@
         .kanban-column-item-delete-button {
           display: block;
         }
+      }
+
+      &.active {
+        background-color: transparent;
+        border: 1px dashed gray;
+        color: gray;
       }
     }
   }

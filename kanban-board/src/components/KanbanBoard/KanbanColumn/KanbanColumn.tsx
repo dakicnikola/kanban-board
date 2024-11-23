@@ -1,5 +1,7 @@
 import "./kanban-column.scss"
 import {useKanbanContext} from "../../../contexts/KanbanBoardContext.tsx";
+import KanbanCard from "./KanbanCard/KanbanCard.tsx";
+import {useDroppable} from "@dnd-kit/core";
 
 const KanbanColumn = (props: TKanbanColumnProps) => {
 
@@ -9,13 +11,15 @@ const KanbanColumn = (props: TKanbanColumnProps) => {
     removeCard(columnId, cardId)
   }
 
-
   const onCardDoubleClick = (cardId: string, label: string) => () => {
     openCardContentModal(props.id, cardId, label)
   }
   const onCreateNewCard = () => {
     openCardContentModal(props.id)
   }
+
+  const {setNodeRef} = useDroppable({id: props.id})
+
 
   return (
     <div className={["kanban-column-container", props.color].join(" ")}>
@@ -32,18 +36,17 @@ const KanbanColumn = (props: TKanbanColumnProps) => {
           <button onClick={onCreateNewCard}>+</button>
         </div>
       </div>
-      <div className={"kanban-column-body"}>
-        {props.items?.map((item) => (
-          <div className={"kanban-column-item"} key={item.id}
-               onDoubleClick={onCardDoubleClick(item.id, item.label)}
-          >
-            <p>{item.label}</p>
-            <div className={"kanban-column-item-delete-button"}>
-              <button onClick={deleteTicket(props.id, item.id)}>
-                x
-              </button>
-            </div>
-          </div>
+      <div className={"kanban-column-body"} ref={setNodeRef}>
+        {props.items?.map((item, cardIndex) => (
+          <KanbanCard
+            key={item.id}
+            onDoubleClick={onCardDoubleClick(item.id, item.label)}
+            onDelete={deleteTicket(props.id, item.id)}
+            label={item.label}
+            id={item.id}
+            index={cardIndex}
+            columnId={props.id}
+          />
         ))}
       </div>
 
