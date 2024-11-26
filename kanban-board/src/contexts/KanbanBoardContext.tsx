@@ -13,7 +13,7 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
     } catch (error) {
       console.error("Not valid object saved in local storage")
     }
-    return columnsFromLocalStorage || kanbanBoardColumns
+    return columnsFromLocalStorage || kanbanBoardColumnsMockData
   })
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [editCardState, setEditCardState] = useState<TEditCardState>({open: false})
@@ -207,7 +207,7 @@ export type {IKanbanContextValue}
 export {useKanbanContext, KanbanContextProvider}
 
 
-const kanbanBoardColumns: TKanbanColumnProps[] = [
+const kanbanBoardColumnsMockData: TKanbanColumnProps[] = [
   {
     name: 'To Do', color: 'blue', id: uuid(),
     items: [

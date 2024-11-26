@@ -49,7 +49,7 @@ const CardContentDialog = (props: TCardContentDialogProps) => {
       <textarea name="card label" id="card label" value={newLabel} onChange={onCardLabelChange} autoFocus />
       <div className={"action-buttons"}>
         <button onClick={props.onClose} className={"secondary"} name={"close-button"} type={"button"}>Close</button>
-        <button onClick={handleSave} type={"submit"} name={"save-button"}>Save</button>
+        <button onClick={handleSave} type={"submit"} name={"save-button"} disabled={!newLabel.length} className={newLabel.length ? "enabled" : "disabled"}>Save</button>
       </div>
     </Rodal>
   );

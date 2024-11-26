@@ -23,6 +23,11 @@
       button {
         background-color: #17a1d9;
         color: white;
+
+        &.disabled {
+          background-color: #d3d2d2;
+          cursor: not-allowed;
+        }
       }
 
       button.secondary {
