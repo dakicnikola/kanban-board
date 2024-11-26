@@ -4,6 +4,7 @@
   .rodal-dialog {
     display: flex;
     flex-direction: column;
+    max-width: 90%;
 
     h3 {
       margin-top: 0;
@@ -14,10 +15,15 @@
       display: flex;
       justify-content: space-between;
 
+      button {
+        background-color: #17a1d9;
+        color: white;
+      }
+
       button.secondary {
+        border: 1px solid black;
         background: none;
         color: black;
-        border: 1px solid black;
       }
     }
   }

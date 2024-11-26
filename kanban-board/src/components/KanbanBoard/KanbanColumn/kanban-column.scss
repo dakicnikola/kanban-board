@@ -1,6 +1,6 @@
 .kanban-column-container {
-  width: 300px;
-  gap: 5px;
+  width: 200px;
+  gap: 3px;
   display: flex;
   flex-direction: column;
 
@@ -50,7 +50,7 @@
   .kanban-column-header {
     display: flex;
     flex-direction: column;
-    min-height: 70px;
+    min-height: 72px;
     justify-content: center;
     padding: 10px 30px;
     position: relative;
@@ -66,6 +66,15 @@
       }
     }
 
+    &-subtitle {
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
     &-action-button {
       position: absolute;
       right: 0;
@@ -75,7 +84,7 @@
       button {
         border: none;
         background-color: transparent;
-        font-size: 2em;
+        font-size: 1.5em;
         padding: 5px;
         width: 50px;
         height: 50px;
