@@ -7,66 +7,49 @@ import {arrayMove} from "@dnd-kit/sortable";
 function KanbanContextProvider({children}: IKanbanContextProviderProps) {
 
   const [columns, setColumns] = useState<TKanbanColumnProps[]>(() => {
-    const columnsFromLocalStorage = window.localStorage.getItem("columns");
-    //todo add validation for columnsFromLocalStorage
-    return columnsFromLocalStorage ? JSON.parse(columnsFromLocalStorage) : kanbanBoardColumns
+    let columnsFromLocalStorage
+    try {
+      columnsFromLocalStorage = JSON.parse(window.localStorage.getItem("columns") || '')
+    } catch (error) {
+      console.error("Not valid object saved in local storage")
+    }
+    return columnsFromLocalStorage || kanbanBoardColumns
   })
-
-  const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
-
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  const [editCardState, setEditCardState] = useState<{
-    cardId?: string,
-    label?: string,
-    columnId?: string
-    open: boolean,
-  }>({
-    open: false
-  })
-
+  const [editCardState, setEditCardState] = useState<TEditCardState>({open: false})
 
   function findContainerId(targetId: string) {
-    return findContainer(targetId)?.id
-  }
-
-  function findContainer(targetId: string) {
     const column = columns.find(({id}) => targetId === id)
     if (column) {
-      return column
+      return column.id
     }
-    return columns.find(({items}) => items.map(({id}) => id).includes(targetId))
+    return columns.find(({items}) => items.map(({id}) => id).includes(targetId))?.id
   }
 
   const moveCard = (activeCardId: string, overCardId: string) => {
     // Find the containers
     const activeContainerId = findContainerId(activeCardId);
     const overContainerId = findContainerId(overCardId);
-
-    if (
-      !activeContainerId ||
-      !overContainerId
-    ) {
+    if (!activeContainerId || !overContainerId) {
       return;
     }
     if (activeContainerId === overContainerId) {
-      const activeItems = columns.find(({id}) => id === activeContainerId)!.items;
-      const overItems = columns.find(({id}) => id === overContainerId)!.items;
+      // Reordering card within the same column
+      const columnItems = columns.find(({id}) => id === activeContainerId)!.items;
 
-      const activeIndex = activeItems.findIndex(({id}) => id === activeCardId);
-      const overIndex = overItems.findIndex(({id}) => id === overCardId);
+      const activeIndex = columnItems.findIndex(({id}) => id === activeCardId);
+      const overIndex = columnItems.findIndex(({id}) => id === overCardId);
 
       if (activeIndex !== overIndex) {
+        console.log({activeIndex, overIndex})
         setColumns((prev) => prev.map(
             col => col.id === overContainerId ? ({...col, items: arrayMove(col.items, activeIndex, overIndex)}) : col
           )
         )
       }
 
-      setDraggingCardId(null);
-
     } else {
-
+      // Moving card to different column
       setColumns((prev) => {
         const activeItems = prev.find(({id}) => id === activeContainerId)!.items;
         const overItems = prev.find(({id}) => id === overContainerId)!.items;
@@ -77,8 +60,9 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
 
         let newIndex;
         if (overCardId === overContainerId) {
-          // We're at the root droppable of a container
+          // We're at the root droppable of a container -> set item to the end of array
           newIndex = overItems.length + 1;
+          console.log({newIndex})
         } else {
           const isBelowLastItem = true
           // over &&
@@ -86,6 +70,8 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
           // draggingRect.offsetTop > over.rect.offsetTop + over.rect.height;
 
           const modifier = isBelowLastItem ? 1 : 0;
+
+          console.log({overIndex, modifier})
 
           newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
         }
@@ -130,7 +116,7 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
       return columns.map(
         column => ({
           ...column,
-          items: column.items.filter(({label}) => label.toLowerCase().includes(loweredSearchTerm),),
+          items: column.items.filter(({label}) => label.toLowerCase().includes(loweredSearchTerm)),
         })
       )
     }
@@ -172,7 +158,6 @@ function KanbanContextProvider({children}: IKanbanContextProviderProps) {
         columns: filteredColumns,
         searchTerm,
         setSearchTerm,
-        draggingCardId
       }}
     >
       {children}
@@ -208,8 +193,15 @@ interface IKanbanContextValue {
   searchTerm: string,
   setSearchTerm: (searchTerm: string) => void
   openCardContentModal: (columnId: string, cardId?: string, label?: string) => void
-  draggingCardId: string | null
 }
+
+type TEditCardState = {
+  cardId?: string,
+  label?: string,
+  columnId?: string
+  open: boolean,
+}
+
 
 export type {IKanbanContextValue}
 export {useKanbanContext, KanbanContextProvider}

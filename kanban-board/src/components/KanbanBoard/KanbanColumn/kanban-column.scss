@@ -71,8 +71,12 @@
       bottom: 3px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 15px;
-      font-weight: 600;
+
+      p {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+      }
     }
 
     &-action-button {
@@ -102,6 +106,12 @@
 
     .kanban-column-item {
       position: relative;
+
+      p {
+        white-space: pre-wrap;
+        margin: 0;
+      }
+
 
       .kanban-column-item-delete-button {
         display: none;

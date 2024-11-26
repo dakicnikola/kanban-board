@@ -22,21 +22,23 @@ const KanbanColumn = (props: TKanbanColumnProps) => {
 
 
   return (
-    <div className={["kanban-column-container", props.color].join(" ")}>
-      <div className={"kanban-column-header"}>
+    <div className={["kanban-column-container", props.color].join(" ")} data-testid="column">
+      <div className={"kanban-column-header"} data-testid="column-header">
         <div className={"kanban-column-header-title"}>
           <h3>
             {props.name}
           </h3>
         </div>
         <div className={"kanban-column-header-subtitle"}>
-          {formatNumberOfTasksText(props.items?.length)}
+          <p data-testid="number-of-items">
+            {formatNumberOfTasksText(props.items?.length)}
+          </p>
         </div>
         <div className={"kanban-column-header-action-button"}>
-          <button onClick={onCreateNewCard}>+</button>
+          <button onClick={onCreateNewCard} name={"add item"}>+</button>
         </div>
       </div>
-      <div className={"kanban-column-body"} ref={setNodeRef}>
+      <div className={"kanban-column-body"} ref={setNodeRef} data-testid="column-body">
         {props.items?.map((item, cardIndex) => (
           <KanbanCard
             key={item.id}

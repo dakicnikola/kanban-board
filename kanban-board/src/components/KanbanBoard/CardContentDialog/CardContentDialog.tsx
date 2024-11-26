@@ -24,23 +24,32 @@ const CardContentDialog = (props: TCardContentDialogProps) => {
   }
 
   useEffect(() => {
-    setNewLabel(props.label || '');
+    if (props.visible) {
+      setNewLabel(props.label || '');
+    }
   }, [props.label, props.visible]);
 
-  return (<Rodal
+  const classNames = ["create-edit-card-modal"]
+  if (!props.visible) {
+    classNames.push("hidden")
+  }
+
+  return (
+    <Rodal
       visible={props.visible}
       onClose={props.onClose}
       animation={"zoom"}
-      className={"create-edit-card-modal"}
+      className={classNames.join(" ")}
+      aria-hidden={!props.visible}
     >
       {Boolean(props.title) &&
-        <h3>{props.title}</h3>
+        <h3 data-testid={"card-content-title"}>{props.title}</h3>
       }
       <label htmlFor="card label">Card label</label>
-      <textarea name="card label" value={newLabel} onChange={onCardLabelChange} autoFocus />
+      <textarea name="card label" id="card label" value={newLabel} onChange={onCardLabelChange} autoFocus />
       <div className={"action-buttons"}>
-        <button onClick={props.onClose} className={"secondary"}>Close</button>
-        <button onClick={handleSave}>Save</button>
+        <button onClick={props.onClose} className={"secondary"} name={"close-button"} type={"button"}>Close</button>
+        <button onClick={handleSave} type={"submit"} name={"save-button"}>Save</button>
       </div>
     </Rodal>
   );
